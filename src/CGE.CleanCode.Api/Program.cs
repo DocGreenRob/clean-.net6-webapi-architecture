@@ -29,6 +29,7 @@ using System;
 using System.IO;
 using System.Reflection;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.DataProtection.KeyManagement;
 
 [assembly: System.Reflection.AssemblyVersion("1.0.*")]
 namespace CGE.CleanCode
@@ -51,8 +52,10 @@ namespace CGE.CleanCode
             {
                 var settings = config.Build();
                 var keyVaultURL = settings["KeyVault:Vault"];
-                var keyVaultClientId = settings["KeyVault:ClientId"];
-                var keyVaultClientSecret = settings["KeyVault:ClientSecret"];
+                var keyVaultClientId = new SecretClient(new Uri(keyVaultURL), new DefaultAzureCredential()); //settings["KeyVault:ClientId"];
+                var keyVaultClientSecret = (keyVaultClientId.GetSecret("").Value).Value; //settings["KeyVault:ClientSecret"];
+                //var client = new SecretClient(new Uri(keyVaultUrl), new DefaultAzureCredential());
+                //var secret = client.GetSecret(key).Value;
                 config.AddAzureKeyVault(keyVaultURL, keyVaultClientId, keyVaultClientSecret, new DefaultKeyVaultSecretManager());
             });
 

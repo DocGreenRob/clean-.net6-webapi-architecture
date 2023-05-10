@@ -33,7 +33,7 @@ namespace CGE.CleanCode.Service
 
 			// Create/Connect to MongoDb
 			var dictionary = new Dictionary<Type, (string, string)> { { typeof(T), (database, documentName) } };
-			var mongoClient = MongoClientSingletonWrapper.Instance.MongoClient;
+			var mongoClient = MongoClientSingletonWrapper.Instance(_configuration).MongoClient;
 
 			if (_adapters == null)
 			{
