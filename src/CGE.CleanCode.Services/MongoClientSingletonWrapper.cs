@@ -72,8 +72,7 @@ namespace CGE.CleanCode.Service
 
 						var mongoClient = default(MongoClient);
 
-						//string connectionString = "mongodb+srv://db-admin:WP3ZtZITDmPdLofJ@notepad-dev.yvrrk.mongodb.net/test";
-						string connectionString = "mongodb+srv://rupesh:a20ieLPyyN5UwvmL@cluster0.q0vwdd9.mongodb.net/test";
+						string connectionString = "CONNECTION_STRING";
 						MongoClientSettings settings = MongoClientSettings.FromUrl(new MongoUrl(connectionString));
 						settings.SslSettings = new SslSettings() { EnabledSslProtocols = SslProtocols.Tls12 };
 
