@@ -396,3 +396,6 @@ FodyWeavers.xsd
 
 # JetBrains Rider
 *.sln.iml
+/src/CGE.CleanCode.Api/appsettings.json
+/src/CGE.CleanCode.Api/appsettings.Development.json
+/src/CGE.CleanCode.Api/Properties/launchSettings.json
