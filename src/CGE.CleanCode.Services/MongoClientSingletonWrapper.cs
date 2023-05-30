@@ -55,24 +55,25 @@ namespace CGE.CleanCode.Service
 		private static readonly object padlock = new object();
 		private readonly IConfiguration _configuration;
 
-		public MongoClientSingletonWrapper()
+		public MongoClientSingletonWrapper(IConfiguration configuration)
 		{
-			
-		}
+            _configuration = configuration.ValidateArgNotNull(nameof(configuration));
+        }
 
-		public static MongoClientSingletonWrapper Instance
-		{
-			get
-			{
+		public static MongoClientSingletonWrapper Instance(IConfiguration configuration)
+        {
+			//get
+			//{
 				lock (padlock)
 				{
 					if (instance == null)
 					{
-						instance = new MongoClientSingletonWrapper();
+						instance = new MongoClientSingletonWrapper(configuration);
 
 						var mongoClient = default(MongoClient);
 
-						string connectionString = "CONNECTION_STRING";
+						//string connectionString = "CONNECTION_STRING";
+						string connectionString = Common.Extensions.StringExtensions.GetKeyValultSecrets("MongoDbConnectionString", configuration).Result; ;
 						MongoClientSettings settings = MongoClientSettings.FromUrl(new MongoUrl(connectionString));
 						settings.SslSettings = new SslSettings() { EnabledSslProtocols = SslProtocols.Tls12 };
 
@@ -83,7 +84,7 @@ namespace CGE.CleanCode.Service
 
 					return instance;
 				}
-			}
+			//}
 		}
 	}
 }

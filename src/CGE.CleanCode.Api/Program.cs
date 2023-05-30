@@ -29,6 +29,7 @@ using System;
 using System.IO;
 using System.Reflection;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.DataProtection.KeyManagement;
 
 [assembly: System.Reflection.AssemblyVersion("1.0.*")]
 namespace CGE.CleanCode
@@ -47,14 +48,16 @@ namespace CGE.CleanCode
             // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
             builder.Services.AddEndpointsApiExplorer();
             builder.Services.AddSwaggerGen();
-            builder.Host.ConfigureAppConfiguration((context, config) =>
-            {
-                var settings = config.Build();
-                var keyVaultURL = settings["KeyVault:Vault"];
-                var keyVaultClientId = settings["KeyVault:ClientId"];
-                var keyVaultClientSecret = settings["KeyVault:ClientSecret"];
-                config.AddAzureKeyVault(keyVaultURL, keyVaultClientId, keyVaultClientSecret, new DefaultKeyVaultSecretManager());
-            });
+            //builder.Host.ConfigureAppConfiguration((context, config) =>
+            //{
+            //    var settings = config.Build();
+            //    var keyVaultURL = settings["KeyVault:Vault"];
+            //    var keyVaultClientId = new SecretClient(new Uri(keyVaultURL), new DefaultAzureCredential()); //settings["KeyVault:ClientId"];
+            //    var keyVaultClientSecret = (keyVaultClientId.GetSecret("").Value).Value; //settings["KeyVault:ClientSecret"];
+            //    //var client = new SecretClient(new Uri(keyVaultUrl), new DefaultAzureCredential());
+            //    //var secret = client.GetSecret(key).Value;
+            //    config.AddAzureKeyVault(keyVaultURL, keyVaultClientId, keyVaultClientSecret, new DefaultKeyVaultSecretManager());
+            //});
 
 
             string serviceBusDbConn = builder.Configuration.GetSection("ServiceBusConnectionString").Value;
@@ -78,7 +81,13 @@ namespace CGE.CleanCode
             builder.Services.AddSingleton<IRouteService, RouteService>();
             builder.Services.AddSingleton<IUserService, UserService>();
 
-            builder.Services.AddTransient<IMessagePublisher>(s => new MessagePublisher(configuration[serviceBusDbConn]));
+            string serviceBusConnStr = configuration[serviceBusDbConn];
+                 // Use the configuration with Azure Key Vault secret manager
+            if (string.IsNullOrEmpty(serviceBusConnStr))
+            {
+                serviceBusConnStr = Common.Extensions.StringExtensions.GetKeyValultSecrets("ServiceBusConnectionString", configuration).Result;
+            }
+            builder.Services.AddTransient<IMessagePublisher>(s => new MessagePublisher(serviceBusConnStr));
             builder.Services.AddSingleton<ICacheService, CacheService>();
             builder.Services.AddSingleton<ICacheConfigruationMangementService, CacheConfigruationMangementService<Dummy>>();
 
@@ -162,8 +171,8 @@ namespace CGE.CleanCode
             })
             .AddGoogle(options =>
             {
-                options.ClientId = "318379590121-hc38q5ddni530ro728ee6sk96nqod69b.apps.googleusercontent.com";
-                options.ClientSecret = "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";
+                options.ClientId = "GoogleClientID";
+                options.ClientSecret = "GoogleSecrete";
                 options.SignInScheme = IdentityConstants.ExternalScheme;
             });
 
